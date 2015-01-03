@@ -86,7 +86,7 @@ cpu_xgetbv_x86(void)
 {
 #if (defined _MSC_VER || defined __INTEL_COMPILER) && FLAC__HAS_X86INTRIN && FLAC__AVX_SUPPORTED
 	return (uint32_t)_xgetbv(0);
-#elif defined __GNUC__
+#elif defined __GNUC__ && defined __INTEL_COMPILER
 	uint32_t lo, hi;
 	asm volatile (".byte 0x0f, 0x01, 0xd0" : "=a"(lo), "=d"(hi) : "c" (0));
 	return lo;
