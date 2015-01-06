@@ -276,6 +276,8 @@ static struct {
 	FLAC__StreamMetadata *pictures[64];
 	unsigned num_pictures;
 
+	progress_cb progress;
+
 	struct {
 		FLAC__bool disable_constant_subframes;
 		FLAC__bool disable_fixed_subframes;
@@ -294,7 +296,11 @@ static FLAC__int32 *align_reservoir[2] = { align_reservoir_0, align_reservoir_1 
 static unsigned align_reservoir_samples = 0; /* 0 .. 587 */
 
 
-int main(int argc, char *argv[])
+int main_js(
+	int argc,
+	char *argv[],
+	progress_cb progress
+)
 {
 	int retval = 0;
 
@@ -330,6 +336,7 @@ int main(int argc, char *argv[])
 	}
 	else {
 		if((retval = parse_options(argc, argv)) == 0)
+			option_values.progress = progress;
 			retval = do_it();
 	}
 
@@ -1922,6 +1929,7 @@ int encode_file(const char *infilename, FLAC__bool is_first_file, FLAC__bool is_
 	encode_options.debug.disable_verbatim_subframes = option_values.debug.disable_verbatim_subframes;
 	encode_options.debug.do_md5 = option_values.debug.do_md5;
 	encode_options.error_on_compression_fail = option_values.error_on_compression_fail;
+	encode_options.progress_cb = option_values.progress;
 
 	/* if infilename and outfilename point to the same file, we need to write to a temporary file */
 	if(encode_infile != stdin && grabbag__file_are_same(infilename, outfilename)) {
