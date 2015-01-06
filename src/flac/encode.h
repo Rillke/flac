@@ -31,6 +31,8 @@
 
 extern const int FLAC_ENCODE__DEFAULT_PADDING;
 
+typedef void(*progress_cb)( int, int, double );
+
 typedef enum {
 	CST_BLOCKSIZE,
 	CST_COMPRESSION_LEVEL,
@@ -89,6 +91,8 @@ typedef struct {
 	FLAC__StreamMetadata *vorbis_comment;
 	FLAC__StreamMetadata *pictures[64];
 	unsigned num_pictures;
+
+	progress_cb progress_cb;
 
 	FileFormat format;
 	union {

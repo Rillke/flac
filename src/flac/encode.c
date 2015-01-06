@@ -110,6 +110,7 @@ typedef struct {
 	FILE *fin;
 	FLAC__StreamMetadata *seek_table_template;
 	double progress, compression_ratio;
+	progress_cb progress_cb;
 } EncoderSession;
 
 const int FLAC_ENCODE__DEFAULT_PADDING = 8192;
@@ -1590,6 +1591,8 @@ FLAC__bool EncoderSession_construct(EncoderSession *e, encode_options_t options,
 		return false;
 	}
 
+	e->progress_cb = options.progress_cb;
+
 	return true;
 }
 
@@ -1676,6 +1679,7 @@ int EncoderSession_finish_ok(EncoderSession *e, int info_align_carry, int info_a
 	}
 
 	EncoderSession_destroy(e);
+	(*e->progress_cb)( 100, 100, -1 );
 
 	return ret;
 }
@@ -2638,17 +2642,19 @@ FLAC__bool parse_cuesheet(FLAC__StreamMetadata **cuesheet, const char *cuesheet_
 
 static void print_stats(const EncoderSession *encoder_session)
 {
+	char ratiostr[16];
+
+	FLAC__ASSERT(encoder_session->total_samples_to_encode > 0);
+
 	if(flac__utils_verbosity_ >= 2) {
-		char ratiostr[16];
-
-		FLAC__ASSERT(encoder_session->total_samples_to_encode > 0);
-
 		if (encoder_session->compression_ratio > 0.0)
 			flac_snprintf(ratiostr, sizeof(ratiostr), "%0.3f", encoder_session->compression_ratio);
 		else
 			flac_snprintf(ratiostr, sizeof(ratiostr), "N/A");
+	}
 
-		if(encoder_session->samples_written == encoder_session->total_samples_to_encode) {
+	if(encoder_session->samples_written == encoder_session->total_samples_to_encode) {
+		if(flac__utils_verbosity_ >= 2) {
 			stats_print_name(2, encoder_session->inbasefilename);
 			stats_print_info(2, "%swrote %" PRIu64 " bytes, ratio=%s",
 				encoder_session->verify? "Verify OK, " : "",
@@ -2656,10 +2662,22 @@ static void print_stats(const EncoderSession *encoder_session)
 				ratiostr
 			);
 		}
-		else {
+		(*encoder_session->progress_cb)(
+				encoder_session->samples_written,
+				encoder_session->total_samples_to_encode,
+				encoder_session->bytes_written
+		);
+	}
+	else {
+		if(flac__utils_verbosity_ >= 2) {
 			stats_print_name(2, encoder_session->inbasefilename);
 			stats_print_info(2, "%u%% complete, ratio=%s", (unsigned)floor(encoder_session->progress * 100.0 + 0.5), ratiostr);
 		}
+		(*encoder_session->progress_cb)(
+			encoder_session->samples_written,
+			encoder_session->total_samples_to_encode,
+			encoder_session->bytes_written
+		);
 	}
 }
 
