@@ -2137,6 +2137,8 @@ int decode_file(const char *infilename)
 	decode_options.channel_map_none = option_values.channel_map_none;
 	decode_options.format = output_format;
 
+	decode_options.progress_cb = option_values.progress;
+
 	if(output_format == FORMAT_RAW) {
 		decode_options.format_options.raw.is_big_endian = option_values.format_is_big_endian;
 		decode_options.format_options.raw.is_unsigned_samples = option_values.format_is_unsigned_samples;
