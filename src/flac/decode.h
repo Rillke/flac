@@ -29,7 +29,6 @@
 #include "utils.h"
 #include "share/replaygain_synthesis.h"
 
-
 typedef struct {
 	FLAC__bool apply;
 	FLAC__bool use_album_gain; /* false => use track gain */
@@ -52,6 +51,8 @@ typedef struct {
 	FLAC__bool has_cue_specification;
 	utils__CueSpecification cue_specification;
 	FLAC__bool channel_map_none; /* --channel-map=none specified, eventually will expand to take actual channel map */
+
+	progress_cb progress_cb;
 
 	FileFormat format;
 	union {

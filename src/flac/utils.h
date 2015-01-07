@@ -28,6 +28,8 @@
 #include "FLAC/format.h" /* for FLAC__StreamMetadata_CueSheet */
 #include <stdio.h> /* for FILE */
 
+typedef void(*progress_cb)( unsigned long, unsigned long, double );
+
 typedef enum { FORMAT_RAW, FORMAT_WAVE, FORMAT_WAVE64, FORMAT_RF64, FORMAT_AIFF, FORMAT_AIFF_C, FORMAT_FLAC, FORMAT_OGGFLAC } FileFormat;
 
 typedef struct {

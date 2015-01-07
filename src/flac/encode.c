@@ -2653,8 +2653,8 @@ static void print_stats(const EncoderSession *encoder_session)
 			flac_snprintf(ratiostr, sizeof(ratiostr), "N/A");
 	}
 
-	if(encoder_session->samples_written == encoder_session->total_samples_to_encode) {
-		if(flac__utils_verbosity_ >= 2) {
+	if(flac__utils_verbosity_ >= 2) {
+		if(encoder_session->samples_written == encoder_session->total_samples_to_encode) {
 			stats_print_name(2, encoder_session->inbasefilename);
 			stats_print_info(2, "%swrote %" PRIu64 " bytes, ratio=%s",
 				encoder_session->verify? "Verify OK, " : "",
@@ -2662,23 +2662,16 @@ static void print_stats(const EncoderSession *encoder_session)
 				ratiostr
 			);
 		}
-		(*encoder_session->progress_cb)(
-				encoder_session->samples_written,
-				encoder_session->total_samples_to_encode,
-				encoder_session->bytes_written
-		);
-	}
-	else {
-		if(flac__utils_verbosity_ >= 2) {
+		else {
 			stats_print_name(2, encoder_session->inbasefilename);
 			stats_print_info(2, "%u%% complete, ratio=%s", (unsigned)floor(encoder_session->progress * 100.0 + 0.5), ratiostr);
 		}
-		(*encoder_session->progress_cb)(
+	}
+	(*encoder_session->progress_cb)(
 			encoder_session->samples_written,
 			encoder_session->total_samples_to_encode,
 			encoder_session->bytes_written
-		);
-	}
+	);
 }
 
 void print_error_with_init_status(const EncoderSession *e, const char *message, FLAC__StreamEncoderInitStatus init_status)

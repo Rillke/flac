@@ -87,6 +87,8 @@ typedef struct {
 
 	FILE *fout;
 
+	progress_cb progress_cb;
+
 	foreign_metadata_t *foreign_metadata; /* NULL unless --keep-foreign-metadata requested */
 	FLAC__off_t fm_offset1, fm_offset2, fm_offset3;
 } DecoderSession;
@@ -172,6 +174,8 @@ int flac__decode_file(const char *infilename, const char *outfilename, FLAC__boo
 		)
 	)
 		return 1;
+
+	decoder_session.progress_cb = options.progress_cb;
 
 	stats_new_file();
 	if(!DecoderSession_init_decoder(&decoder_session, infilename))
@@ -497,6 +501,9 @@ int DecoderSession_finish_ok(DecoderSession *d)
 		flac__utils_printf(stderr, 2, "%s         \n", d->test_only? "ok           ":d->analysis_mode?"done           ":"done");
 	}
 	DecoderSession_destroy(d, /*error_occurred=*/!ok);
+
+	(*d->progress_cb)( 100, 100, -1 );
+
 	if(!d->analysis_mode && !d->test_only && d->format != FORMAT_RAW) {
 		if(d->iff_headers_need_fixup || (!d->got_stream_info && strcmp(d->outfilename, "-"))) {
 			if(!fixup_iff_headers(d))
@@ -1491,4 +1498,9 @@ void print_stats(const DecoderSession *decoder_session)
 			);
 		}
 	}
+	(*decoder_session->progress_cb)(
+			decoder_session->samples_processed,
+			decoder_session->total_samples,
+			decoder_session->decode_position
+	);
 }
