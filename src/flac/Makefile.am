@@ -32,16 +32,12 @@ EXTRA_DIST = \
 	iffscan.vcxproj.filters
 
 flac_SOURCES = \
-	analyze.c \
-	decode.c \
 	encode.c \
 	foreign_metadata.c \
 	main.c \
 	local_string_utils.c \
 	utils.c \
 	vorbiscomment.c \
-	analyze.h \
-	decode.h \
 	encode.h \
 	foreign_metadata.h \
 	local_string_utils.h \
